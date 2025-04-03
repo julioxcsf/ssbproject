@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Conta - Operações</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .barra-topo {
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      padding: 15px 20px; /* reduzi o padding vertical */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+    }
+
+  .barra-topo a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    background-color: #4a8bf5;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid #fff;
+    height: auto;
+    display: flex;
+    align-items: center;
+  }
+
+    .botoes-topo {
+      display: flex;
+      gap: 10px;
+    }
+
+    .wrapper {
+      display: flex;
+      width: 100%;
+      min-height: calc(100vh - 70px);
+    }
+
+    .container {
+      flex: 0 0 42%;
+      padding: 35px;
+      background-color: #ffffff;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+    }
+
+    .extrato {
+    flex: 1;
+    background-color: #e0e0e0;
+    padding: 30px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    height: 100%;
+  }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 15px;
+      border-bottom: 1px solid #d1d1d1;
+      text-align: left;
+    }
+
+    th {
+      background-color: #d6d6d6;
+    }
+
+    td.label {
+      font-weight: bold;
+      color: #000000;
+      width: 30%;
+    }
+
+    td.value {
+      color: #333;
+    }
+
+    .linha-operacao {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .filtros-extrato {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: flex-end;
+    }
+
+    .filtro-item {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 180px;
+    }
+
+    .botao-filtro {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    }
+
+    .botao-filtro:hover {
+    background-color: #0056b3;
+    }
+
+    select, input[type="text"], input[type="number"] {
+      padding: 10px;
+      width: 100%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    #campoTransferencia {
+      display: none;
+      margin-top: 10px;
+    }
+
+    #destino-info {
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .desativada {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    #mensagem-status {
+      margin-bottom: 20px;
+      color: red;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #btn-operar {
+      padding: 10px 15px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-grow: 1;
+      overflow: hidden;
+      width: 100%;
+      height: calc(100vh - 80px); /* considera a barra-topo real */
+      box-sizing: border-box;
+    }
+
+    .container, .extrato {
+      box-sizing: border-box;
+    }
+
+    html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  </style>
+</head>
+<body>
+  <div class="barra-topo">
+    <span>SSB BANK - Conta</span>
+    <div class="botoes-topo">
+      <a href="cliente.html">Voltar ao Cliente</a>
+    </div>
+  </div>
+
+<div class="wrapper">
+  <div class="container">
+    <table>
+      <tr><td class="label">Número da Conta:</td><td class="value" id="numeroConta"></td></tr>
+      <tr><td class="label">Nome do Cliente:</td><td class="value" id="nomeCliente"></td></tr>
+      <tr><td class="label">Tipo:</td><td class="value" id="tipo"></td></tr>
+      <tr><td class="label">Saldo:</td><td class="value">R$ <span id="valor"></span></td></tr>
+      <tr><td class="label">Data de Criação:</td><td class="value" id="data"></td></tr>
+      <tr><td class="label">Ativa:</td><td class="value" id="ativa"></td></tr>
+    </table>
+
+    <div id="mensagem-status"></div>
+
+    <div id="area-operacoes">
+      <div class="linha-operacao">
+        <div style="flex: 1;">
+          <label for="operacao">Operação:</label>
+          <select id="operacao" onchange="verificarOperacao()">
+            <option value="">Selecione</option>
+            <option value="transferencia">Transferência</option>
+            <option value="deposito">Depósito</option>
+            <option value="saque">Saque</option>
+          </select>
+        </div>
+        <div style="flex: 1;">
+          <label for="valorOperacao">Valor (R$):</label>
+          <input type="number" id="valorOperacao" min="0.01" step="0.01" placeholder="100.00">
+        </div>
+      </div>
+
+      <div id="campoTransferencia">
+        <label for="numeroDestino">Número da conta destino:</label>
+        <div class="linha-operacao">
+          <input type="text" id="numeroDestino" placeholder="Digite o número da conta">
+          <span id="destino-info"></span>
+        </div>
+      </div>
+
+      <button id="btn-operar">Efetuar Operação</button>
+    
+    </div>
+    <div style="display: flex; justify-content: center; margin-top: 50px;">
+      <button id="btn-toggle-estado" 
+      style="background-color: orange; color: white; padding: 12px 25px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer;">
+        Atualizar Estado
+      </button>
+    </div>
+
+  </div>
+
+  <div class="extrato">
+    <h3>Extrato da Conta</h3>
+
+    <div class="filtros-extrato">
+        <div class="filtro-item">
+          <label for="inicio">Início (Data e Hora):</label>
+          <input type="datetime-local" id="inicio">
+        </div>
+      
+        <div class="filtro-item">
+          <label for="fim">Fim (Data e Hora):</label>
+          <input type="datetime-local" id="fim">
+        </div>
+      
+        <div class="filtro-item">
+          <label for="tipoTransacao">Tipo de Transação:</label>
+          <select id="tipoTransacao">
+            <option value="">Todos</option>
+            <option value="DEPOSITO">Depósito</option>
+            <option value="SAQUE">Saque</option>
+            <option value="TRANSFERENCIA">Transferência</option>
+          </select>
+        </div>
+      
+        <div class="filtro-item">
+          <label>&nbsp;</label> <!-- espaço para alinhar o botão -->
+          <button class="botao-filtro" onclick="carregarExtrato()">Aplicar Filtros</button>
+        </div>
+    </div>
+
+    <table id="tabela-extrato">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Hora</th>
+          <th>Valor</th>
+          <th>Tipo</th>
+          <th>Referência</th>
+        </tr>
+      </thead>
+      <tbody id="corpo-extrato">
+        <tr><td colspan="4">Carregando extrato...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Primeiro carrega o config -->
+<script src="config.js"></script>
+
+<script>
+    const URL_API = window.API_URL;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const possivelnumeroConta = urlParams.get("account");
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        alert("Sessão expirada ou não autenticado. Faça login.");
+        window.location.href = "index.html";
+    }
+    
+    let contaAtiva = false;
+    let numeroConta = null;
+  
+    fetch(`${URL_API}/accounts/${possivelnumeroConta}`, {
+      headers: {
+              'Authorization': `Bearer ${token}` //  Envia o token
+          }
+    })
+      .then(res => res.json())
+      .then(data => {
+        numeroConta = data.numeroConta;
+        document.getElementById("numeroConta").textContent = numeroConta;
+        document.getElementById("nomeCliente").textContent = data.nomeCliente;
+        document.getElementById("tipo").textContent = data.tipo;
+        document.getElementById("valor").textContent = data.valor.toFixed(2);
+        const dataFormatada = new Date(data.createdAt).toLocaleDateString('pt-BR');
+        document.getElementById("data").textContent = dataFormatada;
+        document.getElementById("ativa").textContent = data.ativa ? "Sim" : "Não";
+        contaAtiva = data.ativa;
+
+        str_idCliente = String(data.idCliente);
+        const linkCliente = document.querySelector('a[href="cliente.html"]');
+        if (linkCliente) {
+          linkCliente.href = `cliente.html?id=${str_idCliente}`;
+        }
+  
+        if (!contaAtiva) {
+          document.getElementById("mensagem-status").innerText = "Essa conta está desativada. Para realizar operações, ative a conta.";
+          document.getElementById("area-operacoes").classList.add("desativada");
+        }
+
+        //carrega os dados do extrato
+        carregarExtrato();
+      });
+
+    const botaoEstado = document.getElementById("btn-toggle-estado");
+      if (contaAtiva) {
+        botaoEstado.textContent = "Desativar Conta";
+      } else {
+        botaoEstado.textContent = "Ativar Conta";
+      }
+  
+    function verificarOperacao() {
+      const op = document.getElementById("operacao").value;
+      const campo = document.getElementById("campoTransferencia");
+      if (op === "transferencia") {
+        campo.style.display = "block";
+      } else {
+        campo.style.display = "none";
+        document.getElementById("destino-info").innerHTML = "";
+      }
+    }
+  
+    document.getElementById("btn-operar").addEventListener("click", async function () {
+      const tipo = document.getElementById("operacao").value;
+      const valor = parseFloat(document.getElementById("valorOperacao").value);
+      const numeroDestino = document.getElementById("numeroDestino").value;
+  
+      if (!contaAtiva) return;
+  
+      if (!tipo) {
+        alert("Escolha uma operação.");
+        return;
+      }
+  
+      if (isNaN(valor) || valor <= 0) {
+        alert("Insira um valor válido maior que zero para a operação.");
+        return;
+      }
+  
+      const dto = {
+        numeroContaOrigem: parseInt(numeroConta),
+        valor: valor,
+        tipo: tipo.toUpperCase(),
+        numeroContaDestino: tipo === "transferencia" ? parseInt(numeroDestino) : null
+      };
+  
+      let endpoint = tipo === "transferencia" ? "transfer" : (tipo === "deposito" ? "deposit" : "withdraw");
+  
+      const numero = parseInt(numeroConta);
+      try {
+        const response = await fetch(`${URL_API}/accounts/${numero}/${endpoint}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(dto)
+        });
+  
+        if (response.status === 200) {
+          //alert("Operação realizada com sucesso!");
+          //window.location.reload();
+          window.location.href = `sucesso-operacao.html?tipo=${tipo}&account=${numeroConta}`;
+        } else {
+          const erro = await response.text();
+          alert("Erro: " + erro);
+        }
+      } catch (e) {
+        alert("Erro na comunicação com o servidor. "+ e);
+      }
+    });
+
+    document.getElementById("btn-toggle-estado").addEventListener("click", async function () {
+      try {
+        const response = await fetch(`${URL_API}/accounts/${numeroConta}/toggle-status`, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          // Troca o texto do botão sem recarregar, se quiser evitar reload:
+          contaAtiva = !contaAtiva;
+          document.getElementById("ativa").textContent = contaAtiva ? "Sim" : "Não";
+          this.textContent = contaAtiva ? "Desativar Conta" : "Ativar Conta";
+
+          if (!contaAtiva) {
+            document.getElementById("mensagem-status").innerText = "Essa conta está desativada. Para realizar operações, ative a conta.";
+            document.getElementById("area-operacoes").classList.add("desativada");
+          } else {
+            document.getElementById("mensagem-status").innerText = "";
+            document.getElementById("area-operacoes").classList.remove("desativada");
+          }
+        } else {
+          const erro = await response.text();
+          alert("Erro ao atualizar estado: " + erro);
+        }
+      } catch (e) {
+        alert("Erro na comunicação com o servidor.");
+      }
+    });
+  
+    document.getElementById("numeroDestino").addEventListener("input", async function () {
+      const numero = this.value;
+      if (numero.length === 5) {
+        try {
+          const res = await fetch(`${URL_API}/accounts/${numero}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+          if (res.ok) {
+            const conta = await res.json();
+            document.getElementById("destino-info").innerHTML = `Cliente destino: <strong>${conta.nomeCliente}</strong>`;
+          } else {
+            document.getElementById("destino-info").innerHTML = "<span style='color: red;'>Conta não encontrada</span>";
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        document.getElementById("destino-info").innerHTML = "";
+      }
+    });
+  
+    function carregarExtrato() {
+        const numeroConta = urlParams.get("account");
+        if (!numeroConta) {
+            alert("Número da conta não identificado.");
+            return;
+        }
+        
+        const tipo = document.getElementById("tipoTransacao").value;
+        const inicio = document.getElementById("inicio").value;
+        const fim = document.getElementById("fim").value;
+
+        let url = `${URL_API}/transactions/${numeroConta}`;
+        const params = [];
+
+        if (tipo && tipo.trim() !== "") params.push(`tipo=${tipo}`);
+        if (inicio && inicio.trim() !== "") params.push(`inicio=${inicio}`);
+        if (fim && fim.trim() !== "") params.push(`fim=${fim}`);
+
+        if (params.length > 0) {
+            url += "?" + params.join("&");
+        }
+
+        fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+            .then(res => res.json())
+            .then(lista => renderizarExtrato(lista))
+            .catch(() => {
+            document.getElementById("corpo-extrato").innerHTML =
+                '<tr><td colspan="5">Erro ao carregar extrato</td></tr>';
+            });
+        }
+
+    function renderizarExtrato(lista) {
+        const corpo = document.getElementById("corpo-extrato");
+        corpo.innerHTML = "";
+
+        if (!lista || lista.length === 0) {
+            corpo.innerHTML = '<tr><td colspan="5">Nenhuma transação encontrada</td></tr>';
+            return;
+        }
+
+        lista.forEach(t => {
+            const dataHora = new Date(t.dataTransacao);
+            const data = dataHora.toLocaleDateString('pt-BR');
+            const hora = dataHora.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+            });
+
+            const numeroDestino = t.contaDestino?.number;
+            const numeroOrigem = t.contaOrigem?.number;
+
+            let referencia = "-";
+            let cor = "green";
+
+            if (t.tipo === "SAQUE") {
+            cor = "red";
+            } else if (t.tipo === "DEPOSITO") {
+            cor = "green";
+            } else if (t.tipo === "TRANSFERENCIA") {
+            if (String(numeroOrigem) === String(numeroConta)) {
+                cor = "red";
+                referencia = `Destino: ${t.contaDestino?.client?.name ?? "-"}`;
+            } else if (String(numeroDestino) === String(numeroConta)) {
+                cor = "green";
+                referencia = `Origem: ${t.contaOrigem?.client?.name ?? "-"}`;
+            }
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+            <td>${data}</td>
+            <td>${hora}</td>
+            <td style="color: ${cor};">R$ ${t.valor.toFixed(2)}</td>
+            <td>${t.tipo}</td>
+            <td>${referencia}</td>
+            `;
+            corpo.appendChild(tr);
+        });
+    }
+
+
+  </script>
+  </body>
+  </html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>SSB BANK - Criar Conta</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+        }
+
+        .barra-topo {
+            background-color: #007bff;
+            color: white;
+            padding: 30px 40px;
+            font-size: 2em;
+            text-align: center;
+        }
+
+        .conteudo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+
+        .form-box {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            padding: 10px;
+            font-size: 1em;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .link-cadastro {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .link-cadastro a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .link-cadastro a:hover {
+            text-decoration: underline;
+        }
+
+        #mensagem {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="barra-topo">
+    SSB BANK - Cadastro de Conta
+</div>
+
+<div class="conteudo">
+    <div class="form-box">
+        <form onsubmit="cadastrarConta(); return false;">
+            <label for="tipo">Tipo de Conta</label>
+            <select id="tipo" required>
+                <option value="CORRENTE">Conta Corrente</option>
+                <option value="POUPANCA">Conta Poupança</option>
+                <option value="INVESTIMENTO">Conta Investimento</option>
+            </select>
+
+            <label for="valor">Saldo Inicial</label>
+            <input type="number" step="0.01" id="valor" required>
+
+            <label for="ativa">Conta Ativa?</label>
+            <select id="ativa" required>
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+            </select>
+
+            <button type="submit">Criar Conta</button>
+
+            <div class="link-cadastro">
+                <a id="voltarCliente" href="#">Voltar para Cliente</a>
+            </div>
+
+            <p id="mensagem"></p>
+        </form>
+    </div>
+</div>
+
+<!-- Primeiro carrega o config -->
+<script src="config.js"></script>
+
+<script>
+    const URL_API = window.API_URL;
+
+    if (!localStorage.getItem("token")) {
+        alert("Sessão expirada ou não autenticado. Faça login.");
+        window.location.href = "index.html";
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const clienteId = urlParams.get('id');
+    document.getElementById('voltarCliente').href = `cliente.html?id=${clienteId}`;
+
+    async function cadastrarConta() {
+        const valorCampo = parseFloat(document.getElementById("valor").value);
+
+        if (isNaN(valorCampo) || valorCampo < 0) {
+            document.getElementById("mensagem").innerText = "O saldo inicial não pode ser negativo.";
+            return;
+        }
+
+        const conta = {
+            clientId: clienteId,
+            type: document.getElementById("tipo").value,
+            balance: valorCampo,
+            active: document.getElementById("ativa").value === 'true'
+        };
+
+        try {
+            const resposta = await fetch(`${URL_API}/accounts`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify(conta)
+            });
+
+            if (resposta.status !== 201) {
+                const erro = await resposta.json();
+                document.getElementById("mensagem").innerText = erro.message || "Erro ao cadastrar conta.";
+                return;
+            }
+
+            window.location.href = `sucesso-conta.html?id=${clienteId}`;
+        } catch (e) {
+            document.getElementById("mensagem").innerText = e.message || "Erro na comunicação com o servidor.";
+        }
+    }
+</script>
+</body>
+</html>

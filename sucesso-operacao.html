@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Operação Realizada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e8f0fe;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .mensagem {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #28a745;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="mensagem">
+        <h1>✅ Operação realizada com sucesso!</h1>
+        <p id="mensagem-operacao">Seu dinheiro foi enviado com sucesso.</p>
+        <a id="btn-voltar" class="btn" href="#">Voltar para a Conta</a>
+    </div>
+
+    <script>
+        if (!localStorage.getItem("token")) {
+            alert("Sessão expirada ou não autenticado. Faça login.");
+            window.location.href = "index.html";
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const tipo = urlParams.get("tipo"); // "deposito", "saque", "transferencia"
+        const numeroConta = urlParams.get("account");
+
+        const texto = tipo === "deposito" ? "depositado" :
+                      tipo === "saque" ? "sacado" :
+                      tipo === "transferencia" ? "enviado" :
+                      "movimentado";
+
+        document.getElementById("mensagem-operacao").innerText = `Seu dinheiro foi ${texto} com sucesso.`;
+        document.getElementById("btn-voltar").href = `conta.html?account=${numeroConta}`;
+    </script>
+</body>
+</html>
