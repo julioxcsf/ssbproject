@@ -334,10 +334,10 @@
         contaAtiva = data.ativa;
 
         str_idCliente = String(data.idCliente);
-        const linkCliente = document.querySelector('a[href="cliente.html"]');
-        if (linkCliente) {
-          linkCliente.href = `cliente.html?id=${str_idCliente}`;
-        }
+        // Configura o botão voltar com o ID correto
+        document.getElementById("btn-voltar-cliente").addEventListener("click", () => {
+          window.location.href = `cliente.html?id=${str_idCliente}`;
+        });
   
         if (!contaAtiva) {
           document.getElementById("mensagem-status").innerText = "Essa conta está desativada. Para realizar operações, ative a conta.";
@@ -347,14 +347,6 @@
         //carrega os dados do extrato
         carregarExtrato();
       });
-
-  document.getElementById("btn-voltar-cliente").addEventListener("click", () => {
-    if (str_idCliente) {
-      window.location.href = `cliente.html?id=${str_idCliente}`;
-    } else {
-      alert("ID do cliente não carregado ainda.");
-    }
-  });
 
     const botaoEstado = document.getElementById("btn-toggle-estado");
       if (contaAtiva) {
