@@ -197,7 +197,7 @@
   <div class="barra-topo">
     <span>SSB BANK - Conta</span>
     <div class="botoes-topo">
-      <a href="cliente.html">Voltar ao Cliente</a>
+      <button id="btn-voltar-cliente">Voltar ao Cliente</button>
     </div>
   </div>
 
@@ -347,6 +347,14 @@
         //carrega os dados do extrato
         carregarExtrato();
       });
+
+  document.getElementById("btn-voltar-cliente").addEventListener("click", () => {
+    if (str_idCliente) {
+      window.location.href = `cliente.html?id=${str_idCliente}`;
+    } else {
+      alert("ID do cliente não carregado ainda.");
+    }
+  });
 
     const botaoEstado = document.getElementById("btn-toggle-estado");
       if (contaAtiva) {
